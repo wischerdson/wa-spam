@@ -29,3 +29,8 @@ services:
   queue:
     depends_on:
       - mariadb
+
+  ngrok:
+    image: ngrok/ngrok:alpine
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}

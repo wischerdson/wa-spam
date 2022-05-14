@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+
+set -eu
+
+RED='\033[0;31m'
+CIAN='\033[0;36m'
+PURPLE='\033[0;35m'
+NC='\033[0m'
+
+# Ensure that there is .env file
+if [ ! -f ./.env ]; then
+	echo "${RED}The .env file is missing, but can be installed with:${NC} \n\n\tcp .env.example .env\n"
+	exit 1
+fi
+
+set -a
+. ./.env
+set +a
+
+dockerComposeFiles=("docker-compose.yaml")
+
+if [ "$APP_ENV" = "local" ]; then
+	dockerComposeFiles+=("docker-compose.dev.yaml")
+else
+	dockerComposeFiles+=("docker-compose.prod.yaml")
+fi
+
+initCommand="docker-compose "
+for i in ${dockerComposeFiles[@]}; do
+	initCommand+="-f $i "
+done
+
+echo "\nUsed $CIAN${dockerComposeFiles[@]}$NC files"
+
+if [ $# = 0 ]; then
+	$initCommand
+	exit 0
+fi
+
+command=$1
+shift 1
+
+case $command in
+	"artisan" | "art")
+		runOrExec="exec"
+		if [ -z `docker ps -q --no-trunc | grep $(docker-compose ps -q php)` ]; then
+			runOrExec="run"
+		fi
+		fullCommand="$initCommand $runOrExec php php ./artisan $@"
+	;;
+
+	"composer")
+		fullCommand="$initCommand run composer composer $@"
+	;;
+
+	"npm")
+		runOrExec="exec"
+		if [ -z `docker ps -q --no-trunc | grep $(docker-compose ps -q nodejs)` ]; then
+			runOrExec="run"
+		fi
+		fullCommand="$initCommand $runOrExec nodejs npm $@"
+	;;
+
+	"ngrok")
+		fullCommand="$initCommand run ngrok http host.docker.internal:80 --region=eu"
+	;;
+
+	*)
+		fullCommand="$initCommand $command $@"
+	;;
+esac
+
+echo "${PURPLE}${fullCommand}${NC}\n"
+$fullCommand
