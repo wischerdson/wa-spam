@@ -3,58 +3,61 @@
 namespace App\Services;
 
 use App\Models\WhatsmonsterInstance;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class WhatsmonsterService
 {
-	private Request $request;
-
 	private string $accessToken;
 
 	private string $baseUri = 'https://whatsmonster.ru/api/';
 
-	public function __construct(Request $request)
+	public function __construct()
 	{
-		$this->request = $request;
 		$this->accessToken = config('services.whatsmonster.access_token');
 	}
 
-	/**
-	 * @throws \App\Exceptions\WhatsmonsterResponseException
-	 */
 	public function createInstance(?string $instanceId = null): WhatsmonsterInstance
 	{
-		$response = $this->send('createinstance.php');
-
-		if ($response->status == 'error') {
-			throw new \App\Exceptions\WhatsmonsterResponseException($response->message);
+		if (!$instanceId) {
+			$response = $this->send('POST', 'createinstance.php');
+			$instanceId = $response->instance_id;
 		}
 
-		return WhatsmonsterInstance::create([
-			'whatsmonster_id' => $response->instance_id
+		return WhatsmonsterInstance::firstOrCreate([
+			'whatsmonster_id' => $instanceId
 		]);
 	}
 
 	/**
 	 * Display QR code to login to Whatsapp web. You can get the results returned via Webhook
 	 */
-	public function getQRCode(WhatsmonsterInstance $instance)
+	public function getQRCode(WhatsmonsterInstance $instance): string
 	{
-		$response = $this->send('getqrcode.php', [
+		$response = $this->send('POST', 'getqrcode.php', [
 			'instance_id' => $instance->whatsmonster_id
 		]);
 
-		dd($response);
+		return $response->base64;
 	}
 
 	/**
 	 * Get all return values from Whatsapp. Like connection status, Incoming message, Outgoing
 	 * message, Disconnected, Change Battery,...
 	 */
-	public function setWebhook(WhatsmonsterInstance $instance)
+	public function setWebhook(WhatsmonsterInstance $instance): object
 	{
+		return $this->send('GET', 'setwebhook.php', [
+			'webhook_url' => $this->getWebhookUrl(),
+			'enable' => 'true',
+			'instance_id' => $instance->whatsmonster_id
+		]);
+	}
 
+	public function getWebhookUrl(): string
+	{
+		$host = config('services.whatsmonster.webhook_host') ?? config('app.url');
+		return Str::finish($host, '/').'api/whatsmonster-callback';
 	}
 
 	/**
@@ -107,14 +110,28 @@ class WhatsmonsterService
 
 	}
 
-	public function send(string $method, array $query = [], array $options = []): object
+	/**
+	 * @throws \App\Exceptions\WhatsmonsterResponseException
+	 */
+	public function send(
+		string $method,
+		string $url,
+		array $query = [],
+		array $options = []
+	): object
 	{
-		return Http::withOptions([
+		$response = Http::withOptions([
 			'query' => [
 				'access_token' => $this->accessToken,
 				...$query
 			],
 			...$options
-		])->post($this->baseUri.$method)->object();
+		])->{$method}($this->baseUri.$url)->object();
+
+		if ($response->status == 'error') {
+			throw new \App\Exceptions\WhatsmonsterResponseException($response->message);
+		}
+
+		return $response;
 	}
 }

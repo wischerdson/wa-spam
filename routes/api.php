@@ -4,4 +4,7 @@ use App\Http\Controllers\WhatsMonsterController;
 use Illuminate\Support\Facades\Route;
 
 Route::any('whatsmonster-callback', [WhatsMonsterController::class, 'callback']);
-Route::any('new-account', [WhatsMonsterController::class, 'newAccount']);
+Route::post('new-account', [WhatsMonsterController::class, 'newAccount']);
+Route::get('accounts', [WhatsMonsterController::class, 'index']);
+Route::get('bot-reply-message', [WhatsMonsterController::class, 'getReplyMessage']);
+Route::post('update-reply-message', [WhatsMonsterController::class, 'setReplyMessage']);

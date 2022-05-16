@@ -49,7 +49,7 @@
 			value: [ String, Number ],
 			label: { type: String, default: '', required: false },
 			forceFilled: { default: false, required: false },
-			errors: { type: Object, required: false },
+			errors: { type: Object, required: false, default: {} },
 			success: { default: false, required: false },
 			showTickOnSuccess: { type: Boolean, default: true, required: false }
 		},

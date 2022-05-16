@@ -64,7 +64,6 @@ export default {
 				// https://tailwindcss.nuxtjs.org/options
 				tailwindcss: {
 					config: './client/tailwind.config.js',
-					// cssPath: resolve(__dirname, 'assets/tailwind.css'),
 					exposeConfig: true
 				},
 				autoprefixer: {},

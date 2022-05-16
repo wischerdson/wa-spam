@@ -15,7 +15,7 @@ return new class extends Migration
 	{
 		Schema::create('whatsmonster_instances', function (Blueprint $table) {
 			$table->id();
-			$table->string('whatsmonster_id');
+			$table->string('whatsmonster_id')->unique();
 			$table->string('photo_url')->nullable();
 			$table->string('name')->nullable();
 			$table->timestamp('created_at');

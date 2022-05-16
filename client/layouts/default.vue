@@ -1,7 +1,5 @@
 <template>
-	<div class="bg-amber-300">
-		<nuxt />
-	</div>
+	<nuxt />
 </template>
 
 <script>
