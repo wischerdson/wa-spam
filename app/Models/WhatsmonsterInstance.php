@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
@@ -21,4 +22,9 @@ class WhatsmonsterInstance extends Model
 	protected $table = 'whatsmonster_instances';
 
 	protected static $unguarded = true;
+
+	public function messages(): HasMany
+	{
+		return $this->hasMany(WhatsAppMessage::class, 'instance_id');
+	}
 }

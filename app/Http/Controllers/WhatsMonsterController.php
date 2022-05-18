@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Settings;
 use App\Models\WhatsmonsterInstance;
-use App\Services\WhatsmonsterService;
+use App\Services\Whatsmonster\Client as WhatsmonsterClient;
+use App\Services\Whatsmonster\Service as WhatsmonsterService;
 use Illuminate\Http\Request;
 
 class WhatsMonsterController extends Controller
@@ -30,18 +31,31 @@ class WhatsMonsterController extends Controller
 		);
 	}
 
-	public function callback(Request $request, WhatsmonsterService $service)
+	public function uploadMessageFile(Request $request)
 	{
-		$service->onReceiveMessage(function (WhatsmonsterInstance $instance, $message) {
+		$filename = $request->file('file')->store('message-files', 'public');
 
-		});
-		\Log::debug($request->all());
+		Settings::updateOrCreate(
+			['key' => 'message_file'],
+			['value' => $filename]
+		);
 	}
 
-	public function newAccount(Request $request, WhatsmonsterService $service)
+	public function callback(Request $request, WhatsmonsterService $service)
 	{
-		$instance = $service->createInstance($request->instance_id);
-		$service->setWebhook($instance);
-		return $service->getQRCode($instance);
+		$service->handleMessages($request);
+
+		return 'ok';
+	}
+
+	public function newAccount(Request $request, WhatsmonsterClient $client)
+	{
+		$instance = WhatsmonsterInstance::firstOrCreate([
+			'whatsmonster_id' => $request->instance_id
+		]);
+
+		$client->setWebhook($instance->whatsmonster_id);
+
+		return 'ok';
 	}
 }

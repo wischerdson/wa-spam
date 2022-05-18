@@ -1,12 +1,18 @@
 <template>
 	<div class="mt-16">
 		<div class="container">
-			<form @submit.prevent="updateMessage">
+			<div>
+				<button class="bg-red-600 text-white p-4" @click="stopBot">Стоой бля</button>
+			</div>
+			<form class="mt-8" @submit.prevent="updateMessage">
 				<fieldset>
 					<label class="block text-sm" for="textarea_message">Ответное сообщение</label>
 					<textarea class="bg-gray-200 p-2 mt-1 w-full min-h-[100px]" v-model="message"></textarea>
 				</fieldset>
-				<button class="bg-blue-600 text-white p-4 mt-4" type="submit">Обновить сообщение</button>
+				<div class="flex space-x-6 mt-4 items-center">
+					<button class="bg-blue-600 text-white p-4" type="submit">Обновить сообщение</button>
+					<input type="file" @change="handleFileUploading">
+				</div>
 			</form>
 			<div class="mt-12" v-if="!accounts.length">
 				Аккаунты еще не добавлены
@@ -38,7 +44,7 @@
 
 <script>
 
-import { getAccounts, getMessage, updateMessage } from '~/services/api'
+import { getAccounts, getMessage, updateMessage, uploadFile } from '~/services/api'
 
 export default {
 	layout: 'default',
@@ -46,6 +52,7 @@ export default {
 		return {
 			accounts: [],
 			message: '',
+			file: ''
 		}
 	},
 	fetchOnServer: true,
@@ -58,6 +65,12 @@ export default {
 			updateMessage({ message: this.message })
 				.then(() => alert('Ok'))
 				.catch(({ response }) => alert(response.data.message))
+		},
+		handleFileUploading ({ target }) {
+			const file = target.files[0]
+			const formData = new FormData()
+			formData.append('file', file)
+			uploadFile(formData)
 		}
 	}
 }
