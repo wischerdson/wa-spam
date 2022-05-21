@@ -2,7 +2,9 @@
 
 namespace App\Services\Whatsmonster;
 
+use App\Models\WhatsAppMessage;
 use App\Models\WhatsmonsterInstance;
+use App\Models\WhatsmonsterLog;
 use Illuminate\Http\Request;
 
 class Service
@@ -16,8 +18,34 @@ class Service
 
 	public function handleMessages(Request $request)
 	{
-		$this->client->onMessage($request, function (Request $request) {
-			$instance = WhatsmonsterInstance::find($request->instance_id);
+		$this->client->onMessage($request, function (Message $message) {
+			$instance = WhatsmonsterInstance::firstOrCreate([
+				'whatsmonster_id' => $message->instanceId
+			]);
+
+			WhatsAppMessage::updateOrCreate([
+				'whatsapp_id' => $message->id
+			], [
+				'text' => $message->text,
+				'from_me' => $message->fromMe,
+				'phone' => $message->phone,
+				'created_at' => $message->timestamp,
+				'media_mime_type' => $message->mediaMimeType,
+				'instance_id' => $instance->id
+			]);
 		});
+	}
+
+	public function logRequest(Request $request)
+	{
+		$instance = WhatsmonsterInstance::firstOrCreate([
+			'whatsmonster_id' => $request->instance_id
+		]);
+
+		WhatsmonsterLog::create([
+			'instance_id' => $instance->id,
+			'event_type' => $request->event,
+			'data' => json_encode($request->data)
+		]);
 	}
 }

@@ -13,16 +13,13 @@ return new class extends Migration
 	 */
 	public function up()
 	{
-		Schema::create('whatsapp_messages', function (Blueprint $table) {
+		Schema::create('whatsmonster_logs', function (Blueprint $table) {
 			$table->id();
 			$table->foreignId('instance_id')
-				->constrained('whatsmonster_instances')
-				->cascadeOnUpdate()->cascadeOnDelete();
-			$table->string('whatsapp_id');
-			$table->text('text')->nullable();
-			$table->boolean('from_me');
-			$table->string('phone');
-			$table->string('media_mime_type')->nullable();
+                ->constrained('whatsmonster_instances')
+                ->cascadeOnUpdate()->cascadeOnDelete();
+			$table->string('event_type');
+			$table->json('data');
 			$table->timestamp('created_at');
 		});
 	}
@@ -34,6 +31,6 @@ return new class extends Migration
 	 */
 	public function down()
 	{
-		Schema::dropIfExists('whatsapp_messages');
+		Schema::dropIfExists('whatsmonster_logs');
 	}
 };

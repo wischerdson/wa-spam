@@ -43,6 +43,7 @@ class WhatsMonsterController extends Controller
 
 	public function callback(Request $request, WhatsmonsterService $service)
 	{
+		$service->logRequest($request);
 		$service->handleMessages($request);
 
 		return 'ok';
@@ -50,11 +51,11 @@ class WhatsMonsterController extends Controller
 
 	public function newAccount(Request $request, WhatsmonsterClient $client)
 	{
-		$instance = WhatsmonsterInstance::firstOrCreate([
+		WhatsmonsterInstance::firstOrCreate([
 			'whatsmonster_id' => $request->instance_id
 		]);
 
-		$client->setWebhook($instance->whatsmonster_id);
+		$client->setWebhook($request->instance_id);
 
 		return 'ok';
 	}

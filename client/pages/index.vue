@@ -52,7 +52,8 @@ export default {
 		return {
 			accounts: [],
 			message: '',
-			file: ''
+			file: '',
+			stopBot: false
 		}
 	},
 	fetchOnServer: true,

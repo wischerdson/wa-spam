@@ -94,43 +94,12 @@ class Client
 
 	}
 
-	public function onMessage(Request $request, callable $callback)
+	public function onMessage(Request $request, $callback)
 	{
 		if ($request->event == 'message' && $messages = $request->data['messages']) {
-			$preparedMessages = [];
-
-			foreach ($messages as $message) {
-				if (!isset($message['message'])) {
-					continue;
-				}
-
-				$preparedMessage = [
-					'from_me' => (bool) $message['key']['fromMe'],
-					'phone' => explode('@', $message['key']['remoteJid'])[0],
-					'timestamp' => $message['messageTimestamp']
-				];
-
-				foreach ($message['message'] as $key => $value) {
-					if ($key == 'conversation') {
-						$preparedMessage['text'] = $value;
-						continue;
-					}
-
-					if (is_array($value)) {
-						if (isset($value['mimetype'])) {
-							$preparedMessage['media_mime_type'] = $value['mimetype'];
-						}
-
-						if (isset($value['caption'])) {
-							$preparedMessage['text'] = $value['caption'];
-						}
-					}
-				}
-			}
-
-			if (!empty($preparedMessages)) {
-				$request->merge($preparedMessages);
-				$callback($request);
+			foreach ($messages as $rawMessage) {
+				$message = new Message($request->instance_id, $rawMessage);
+				$callback($message);
 			}
 		}
 	}
