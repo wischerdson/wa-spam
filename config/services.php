@@ -32,7 +32,7 @@ return [
 	],
 
 	'whatsmonster' => [
-        'access_token' => env('WHATSMONSTER_ACCESS_TOKEN'),
+		'access_token' => env('WHATSMONSTER_ACCESS_TOKEN'),
 		'webhook_host' => env('WHATSMONSTER_WEBHOOK_HOST')
-    ]
+	]
 ];

@@ -83,15 +83,26 @@ class Client
 	 */
 	public function sendTextMessage(string $instanceId, string $phone, string $text)
 	{
-
+		$this->send('POST', 'send.php', [
+			'number' => $phone,
+			'type' => 'text',
+			'message' => $text,
+			'instance_id' => $instanceId
+		]);
 	}
 
 	/**
 	 * Send a media or file with message to a phone number through the app
 	 */
-	public function sendFileMessage(string $instanceId, string $phone, string $file, string $caption)
+	public function sendFileMessage(string $instanceId, string $phone, string $file, ?string $caption = null)
 	{
-
+		$this->send('POST', 'send.php', [
+			'number' => $phone,
+			'type' => 'media',
+			'message' => $caption,
+			'media_url' => $file,
+			'instance_id' => $instanceId
+		]);
 	}
 
 	public function onMessage(Request $request, $callback)
@@ -99,7 +110,10 @@ class Client
 		if ($request->event == 'message' && $messages = $request->data['messages']) {
 			foreach ($messages as $rawMessage) {
 				$message = new Message($request->instance_id, $rawMessage);
-				$callback($message);
+
+				if ($message->parse()) {
+					$callback($message);
+				}
 			}
 		}
 	}

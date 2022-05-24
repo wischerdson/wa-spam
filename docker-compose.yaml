@@ -12,7 +12,6 @@ services:
     volumes:
       - .:/app
     working_dir: /app
-    command: sh -c "php artisan queue:work"
 
   nginx:
     image: nginx:alpine

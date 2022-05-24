@@ -13,10 +13,10 @@ return new class extends Migration
 	 */
 	public function up()
 	{
-		Schema::create('whatsmonster_instances', function (Blueprint $table) {
+		Schema::create('account_instances', function (Blueprint $table) {
 			$table->id();
-			$table->string('whatsmonster_id')->unique();
-			$table->string('photo_url')->nullable();
+			$table->string('external_id')->unique();
+			$table->string('phone')->nullable();
 			$table->string('name')->nullable();
 			$table->timestamp('created_at');
 		});
@@ -29,6 +29,6 @@ return new class extends Migration
 	 */
 	public function down()
 	{
-		Schema::dropIfExists('whatsmonster_instances');
+		Schema::dropIfExists('account_instances');
 	}
 };

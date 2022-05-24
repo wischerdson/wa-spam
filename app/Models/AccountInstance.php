@@ -8,23 +8,23 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
- * @property string $whatsmonster_id
+ * @property string $external_id
  * @property string $name
  * @property string $photo_url
  * @property string $created_at
  */
-class WhatsmonsterInstance extends Model
+class AccountInstance extends Model
 {
 	use HasFactory;
 
 	const UPDATED_AT = null;
 
-	protected $table = 'whatsmonster_instances';
+	protected $table = 'account_instances';
 
 	protected static $unguarded = true;
 
 	public function messages(): HasMany
 	{
-		return $this->hasMany(WhatsAppMessage::class, 'instance_id');
+		return $this->hasMany(Message::class, 'instance_id');
 	}
 }

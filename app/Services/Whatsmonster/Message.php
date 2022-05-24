@@ -34,7 +34,6 @@ class Message
 	{
 		$this->instanceId = $instanceId;
 		$this->rawMessage = $rawMessage;
-		$this->parse();
 	}
 
 	public function __get(string $property)
@@ -42,10 +41,10 @@ class Message
 		return $this->$property;
 	}
 
-	private function parse(): void
+	public function parse(): bool
 	{
 		if (!isset($this->rawMessage['message'])) {
-			return;
+			return false;
 		}
 
 		$this->setFromMe();
@@ -56,7 +55,7 @@ class Message
 		foreach ($this->rawMessage['message'] as $key => $value) {
 			if ($key == 'conversation') {
 				$this->text = $value;
-				return;
+				continue;
 			}
 
 			if (is_array($value)) {
@@ -69,6 +68,8 @@ class Message
 				}
 			}
 		}
+
+		return true;
 	}
 
 	private function setFromMe()

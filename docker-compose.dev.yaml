@@ -29,6 +29,7 @@ services:
   queue:
     depends_on:
       - mariadb
+    command: sh -c "php artisan queue:listen --queue=replying"
 
   ngrok:
     image: ngrok/ngrok:alpine

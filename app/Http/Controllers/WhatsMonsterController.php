@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AccountInstance;
 use App\Models\Settings;
-use App\Models\WhatsmonsterInstance;
 use App\Services\Whatsmonster\Client as WhatsmonsterClient;
 use App\Services\Whatsmonster\Service as WhatsmonsterService;
 use Illuminate\Http\Request;
 
-class WhatsMonsterController extends Controller
+class WhatsmonsterController extends Controller
 {
-	/**
-	 * Whatsmonster instances list
-	 */
 	public function index()
 	{
-		return WhatsmonsterInstance::all();
+		return AccountInstance::all();
 	}
 
 	public function getReplyMessage()
@@ -43,15 +40,14 @@ class WhatsMonsterController extends Controller
 
 	public function callback(Request $request, WhatsmonsterService $service)
 	{
-		$service->logRequest($request);
-		$service->handleMessages($request);
+		$service->handleWebhookRequest($request);
 
 		return 'ok';
 	}
 
 	public function newAccount(Request $request, WhatsmonsterClient $client)
 	{
-		WhatsmonsterInstance::firstOrCreate([
+		AccountInstance::firstOrCreate([
 			'whatsmonster_id' => $request->instance_id
 		]);
 
